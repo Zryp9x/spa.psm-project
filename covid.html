@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>covid</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.js" integrity="sha256-bd8XIKzrtyJ1O5Sh3Xp3GiuMIzWC42ZekvrMMD4GxRg=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js" integrity="sha256-T/f7Sju1ZfNNfBh7skWn0idlCBcI3RwdLSS4/I7NQKQ=" crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <Style>
+        .total {
+            text-align: center;
+            font-family: sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 70px;
+        }
+        .totalData {
+            font-size: 45px;
+            font-weight: 700;
+            color:red;
+            margin: 0px;
+        }
+        h1 {
+            margin: 0px;
+        }
+        #app {
+            margin-top:  100px;
+            width: 100%;
+        }
+    </Style>
+</head>
+<body>
+    <div class="total" id="totalConfimed"></div>
+    <div class="total" id="totalDeaths"></div>
+    <div class="total" id="totalRecovered"></div>
+
+    <table border="1" id="app" class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Country</th>
+            <th scope="col">Slug</th>
+            <th scope="col">NewComfirmed</th>
+            <th scope="col">TotalConfirmed</th>
+            <th scope="col">NewDeaths</th>
+            <th scope="col">TotalDeaths</th>
+            <th scope="col">NewRecovered</th>
+            <th scope="col">TotalRecovered</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="x in countries">
+            <td v-for="data in x" >{{data}}</td>
+        </tr>
+    </tbody>
+    </table>
+
+    
+
+    <script>
+        var totalConfimed = 0;
+        var totalDeaths = 0;
+        var totalRecovered = 0;
+		var request = new XMLHttpRequest();
+		request.onreadystatechange = function () {
+		if (this.readyState==4 && this.status==200){
+		let json = JSON.parse(this.responseText);
+        for(let i=1;i < json.Countries.length; i++){
+            totalConfimed += json.Countries[i].TotalConfirmed;
+            totalDeaths += json.Countries[i].TotalDeaths;
+            totalRecovered += json.Countries[i].TotalRecovered;
+            document.getElementById("totalConfimed").innerHTML =  "<h1>Zakażonych łącznie: </h1><br><p class='totalData'>" + totalConfimed + "</p>";
+            document.getElementById("totalDeaths").innerHTML =  "<h1>Zgony: </h1><br><p class='totalData'>" + totalDeaths + "</p>";
+            document.getElementById("totalRecovered").innerHTML =  "<h1>Wyzdrowiałych łącznie: </h1><br><p class='totalData'>" + totalRecovered + "</p>";
+            
+        }
+		}
+		};
+		request.open('GET', 'https://api.covid19api.com/summary',true);
+		request.send();
+
+        var app = new Vue({
+      el: '#app',
+      data: {
+        countries: []
+        },
+          mounted () {
+    axios.get('https://api.covid19api.com/summary').then(response => (this.countries = response.data.Countries))
+  }
+      
+    
+    });
+
+    </script>
+</body>
+</html>
